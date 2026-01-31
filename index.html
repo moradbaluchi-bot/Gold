@@ -1,4 +1,4 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -15,26 +15,36 @@ body{font-family:tahoma;background:#f2f2f2;padding:20px}
 <div class="box">
 <h3>وضعیت بازار طلای آب‌شده</h3>
 <p>اونس جهانی: <span id="ounce">---</span></p>
-<p>دلار آزاد: <span id="usd">---</span></p>
-<p>مظنه تقریبی: <span id="mazaneh">---</span></p>
+<p>دلار (IRR): <span id="usd">---</span></p>
 <p>نتیجه: <span id="result">---</span></p>
 </div>
 
 <script>
 async function loadData(){
   try{
-    // اونس جهانی با پراکسی
-    const ounceRes = await fetch("https://api.allorigins.win/raw?url=https://api.metals.live/v1/spot/gold");
+    // اونس از Yahoo Finance
+    const ounceRes = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/GC=F");
     const ounceData = await ounceRes.json();
-    const ounce = ounceData[0][1];
+    const ounce = ounceData.chart.result[0].meta.regularMarketPrice;
 
-    // دلار آزاد
-    const usdRes = await fetch("https://api.allorigins.win/raw?url=https://api.exchangerate.host/latest?base=USD&symbols=IRR");
+    // دلار از frankfurter.app
+    const usdRes = await fetch("https://api.frankfurter.app/latest?from=USD&to=IRR");
     const usdData = await usdRes.json();
     const usd = usdData.rates.IRR;
 
-    const mazaneh = (ounce * usd) / 3.11;
+    document.getElementById("ounce").innerText = ounce.toFixed(2);
+    document.getElementById("usd").innerText = usd.toFixed(0);
+    document.getElementById("result").innerText = "داده واقعی دریافت شد";
 
+  }catch(e){
+    document.getElementById("result").innerText = "باز هم نشد، اینترنت یا API بسته است";
+  }
+}
+loadData();
+</script>
+
+</body>
+</html>
     document.getElementById("ounce").innerText = ounce.toFixed(2);
     document.getElementById("usd").innerText = usd.toFixed(0);
     document.getElementById("mazaneh").innerText = mazaneh.toFixed(0);
