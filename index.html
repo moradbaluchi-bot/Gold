@@ -1,57 +1,54 @@
-<!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>تحلیل طلای آب‌شده</title>
+<title>تصمیم خرید یا فروش طلای آب‌شده</title>
 <style>
 body{font-family:tahoma;background:#f2f2f2;padding:20px}
-.box{background:#fff;padding:15px;border-radius:10px}
+.box{background:#fff;padding:15px;border-radius:10px;border-radius:12px}
 .green{color:green;font-weight:bold}
 .red{color:red;font-weight:bold}
+.orange{color:orange;font-weight:bold}
 </style>
 </head>
 <body>
 
 <div class="box">
 <h3>وضعیت بازار طلای آب‌شده</h3>
-<p>اونس جهانی: <span id="ounce">---</span></p>
+<p>اونس جهانی طلا: <span id="ounce">---</span></p>
 <p>دلار (IRR): <span id="usd">---</span></p>
+<p>مظنه تقریبی: <span id="mazaneh">---</span></p>
 <p>نتیجه: <span id="result">---</span></p>
 </div>
 
 <script>
 async function loadData(){
   try{
-    // اونس از Yahoo Finance
-    const ounceRes = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/GC=F");
-    const ounceData = await ounceRes.json();
-    const ounce = ounceData.chart.result[0].meta.regularMarketPrice;
+    // قیمت طلا از یاهو فایننس (بازار جهانی)
+    const goldRes = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/GC=F");
+    const goldData = await goldRes.json();
+    const ounce = goldData.chart.result[0].meta.regularMarketPrice;
 
-    // دلار از frankfurter.app
-    const usdRes = await fetch("https://api.frankfurter.app/latest?from=USD&to=IRR");
+    // دلار از API عمومی (کمتر بلاک می‌شود)
+    const usdRes = await fetch("https://open.er-api.com/v6/latest/USD");
     const usdData = await usdRes.json();
     const usd = usdData.rates.IRR;
 
-    document.getElementById("ounce").innerText = ounce.toFixed(2);
-    document.getElementById("usd").innerText = usd.toFixed(0);
-    document.getElementById("result").innerText = "داده واقعی دریافت شد";
+    const mazaneh = (ounce * usd) / 3.11;
 
-  }catch(e){
-    document.getElementById("result").innerText = "باز هم نشد، اینترنت یا API بسته است";
-  }
-}
-loadData();
-</script>
-
-</body>
-</html>
     document.getElementById("ounce").innerText = ounce.toFixed(2);
     document.getElementById("usd").innerText = usd.toFixed(0);
     document.getElementById("mazaneh").innerText = mazaneh.toFixed(0);
 
-    document.getElementById("result").innerText = "داده واقعی دریافت شد";
+    // منطق ساده تصمیم
+    if(mazaneh > 0){
+      document.getElementById("result").innerText = "داده واقعی دریافت شد";
+      document.getElementById("result").className = "green";
+    }
+
   }catch(e){
-    document.getElementById("result").innerText = "دریافت داده ناموفق";
+    document.getElementById("result").innerText = "باز هم نشد – اینترنت یا API بسته است";
+    document.getElementById("result").className = "red";
   }
 }
 
