@@ -1,0 +1,86 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>تصمیم خرید یا فروش طلای آب‌شده</title>
+<style>
+body {font-family:tahoma;background:#f2f2f2;padding:15px}
+.box {background:white;padding:15px;border-radius:10px;margin-bottom:10px}
+button {padding:10px 20px;font-size:16px}
+.green {color:green;font-weight:bold}
+.red {color:red;font-weight:bold}
+.orange {color:orange;font-weight:bold}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h3>وضعیت بازار طلای آب‌شده</h3>
+<p>اونس جهانی: <span id="ounce">---</span></p>
+<p>دلار آزاد: <span id="usd">---</span></p>
+<p>مظنه بازار: <span id="mazaneh">---</span></p>
+<p>قیمت واقعی: <span id="real">---</span></p>
+<p>حباب: <span id="bubble">---</span></p>
+</div>
+
+<div class="box">
+<button onclick="analyze()">تحلیل کن</button>
+<p id="result"></p>
+</div>
+
+<script>
+let market = {};
+
+async function loadData() {
+  try {
+    // اونس جهانی
+    let ounceRes = await fetch("https://api.metals.live/v1/spot/gold");
+    let ounceData = await ounceRes.json();
+    market.ounce = ounceData[0][1];
+
+    // دلار آزاد (نرخ بازار آزاد تقریبی)
+    let usdRes = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=IRR");
+    let usdData = await usdRes.json();
+    market.usd = usdData.rates.IRR;
+
+    // محاسبه مظنه تقریبی
+    market.mazaneh = (market.ounce * market.usd) / 3.11;
+
+    document.getElementById("ounce").innerText = market.ounce.toFixed(2);
+    document.getElementById("usd").innerText = market.usd.toFixed(0);
+    document.getElementById("mazaneh").innerText = market.mazaneh.toFixed(0);
+
+    let realPrice = market.mazaneh * (750/705);
+    let bubble = market.mazaneh - realPrice;
+
+    document.getElementById("real").innerText = realPrice.toFixed(0);
+    document.getElementById("bubble").innerText = bubble.toFixed(0);
+
+  } catch(e) {
+    alert("نتوانستم اطلاعات بازار را بگیرم. اینترنت یا API قطع است.");
+  }
+}
+
+function analyze() {
+  let realPrice = market.mazaneh * (750/705);
+  let bubble = market.mazaneh - realPrice;
+
+  let result = document.getElementById("result");
+
+  if (bubble < 0) {
+    result.innerText = "سیگنال خرید";
+    result.className = "green";
+  } else if (bubble > 0) {
+    result.innerText = "سیگنال فروش";
+    result.className = "red";
+  } else {
+    result.innerText = "نگه دار";
+    result.className = "orange";
+  }
+}
+
+loadData();
+</script>
+
+</body>
+</html>
