@@ -1,0 +1,52 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>تحلیل طلای آب‌شده</title>
+<style>
+body{font-family:tahoma;background:#f2f2f2;padding:20px}
+.box{background:#fff;padding:15px;border-radius:10px}
+.green{color:green;font-weight:bold}
+.red{color:red;font-weight:bold}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h3>وضعیت بازار طلای آب‌شده</h3>
+<p>اونس جهانی: <span id="ounce">---</span></p>
+<p>دلار آزاد: <span id="usd">---</span></p>
+<p>مظنه تقریبی: <span id="mazaneh">---</span></p>
+<p>نتیجه: <span id="result">---</span></p>
+</div>
+
+<script>
+async function loadData(){
+  try{
+    // اونس جهانی با پراکسی
+    const ounceRes = await fetch("https://api.allorigins.win/raw?url=https://api.metals.live/v1/spot/gold");
+    const ounceData = await ounceRes.json();
+    const ounce = ounceData[0][1];
+
+    // دلار آزاد
+    const usdRes = await fetch("https://api.allorigins.win/raw?url=https://api.exchangerate.host/latest?base=USD&symbols=IRR");
+    const usdData = await usdRes.json();
+    const usd = usdData.rates.IRR;
+
+    const mazaneh = (ounce * usd) / 3.11;
+
+    document.getElementById("ounce").innerText = ounce.toFixed(2);
+    document.getElementById("usd").innerText = usd.toFixed(0);
+    document.getElementById("mazaneh").innerText = mazaneh.toFixed(0);
+
+    document.getElementById("result").innerText = "داده واقعی دریافت شد";
+  }catch(e){
+    document.getElementById("result").innerText = "دریافت داده ناموفق";
+  }
+}
+
+loadData();
+</script>
+
+</body>
+</html>
